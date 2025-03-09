@@ -72,7 +72,9 @@ static void announce_and_cleanup(int fake)
 #endif
 
 #if defined(CONFIG_VIDEO_LINK)
+#if !IS_ENABLED(CONFIG_VIDEO_LOGO_KEEP_IT_ON)
 	video_link_shut_down();
+#endif
 #endif
 
 #ifdef CONFIG_IMX_TRUSTY_OS
@@ -92,10 +94,14 @@ static void announce_and_cleanup(int fake)
 	 * of DMA operation or releasing device internal buffers.
 	 */
 #ifndef CONFIG_POWER_DOMAIN
+#if !IS_ENABLED(CONFIG_VIDEO_LOGO_KEEP_IT_ON)
 	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL | DM_REMOVE_NON_VITAL);
+#endif
 
 	/* Remove all active vital devices next */
+#if !IS_ENABLED(CONFIG_VIDEO_LOGO_KEEP_IT_ON)
 	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
+#endif
 #endif
 
 	cleanup_before_linux();

@@ -26,6 +26,21 @@ config VIDEO_LOGO
 	  tools/logos/u-boot_logo.bmp and looks best when the display has a
 	  black background.
 
+config VIDEO_LOGO_SCIAPS
+	bool "Show the U-Boot SciAps logo on the display"
+	default y if !SPLASH_SCREEN
+	select VIDEO_BMP_RLE8
+	help
+	  This enables showing the SciAps U-Boot logo on the display when a video
+	  device is probed. It appears centered. The logo itself is at
+	  tools/logos/u-boot_logo_sciaps.bmp and looks best when the display has a
+	  black background.
+
+config VIDEO_LOGO_KEEP_IT_ON
+	bool  "Keep it on"
+    help
+		This would keep the logo/display ...
+
 config BACKLIGHT
 	bool "Enable panel backlight uclass support"
 	default y
@@ -224,6 +239,13 @@ config PANEL_HX8238D
 	  integrates the power circuit.
 	  It can drive a maximum 960x240 dot graphics on a-TFT panel
 	  displays in 16M colors with dithering.
+
+config PANEL_ORTUS_COM35H3N82ULC
+	tristate "Ortustech COM35H3N82ULC 3.5in 480x640 LCD panel"
+	depends on PANEL && BACKLIGHT
+	help
+	  Say Y here if you want to enable support for Ortus Technology
+	  com35h3n82ulc 3.5in 480x640 dsi 2dl panel.
 
 source "drivers/video/fonts/Kconfig"
 

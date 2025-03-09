@@ -404,20 +404,32 @@ int video_sync_copy_all(struct udevice *dev)
 
 #define SPLASH_START(_name)	__splash_ ## _name ## _begin
 
+#if IS_ENABLED(CONFIG_VIDEO_LOGO_SCIAPS)
+SPLASH_DECL(u_boot_logo_sciaps);
+#else
 SPLASH_DECL(u_boot_logo);
+#endif
 
 void *video_get_u_boot_logo(void)
 {
+#if IS_ENABLED(CONFIG_VIDEO_LOGO_SCIAPS)
+	return SPLASH_START(u_boot_logo_sciaps);
+#else
 	return SPLASH_START(u_boot_logo);
+#endif
 }
 
 static int show_splash(struct udevice *dev)
 {
-	u8 *data = SPLASH_START(u_boot_logo);
+	u8 *data;
 	int ret;
-
+#if IS_ENABLED(CONFIG_VIDEO_LOGO_SCIAPS)
+	data = SPLASH_START(u_boot_logo_sciaps);
+	ret = video_bmp_display(dev, map_to_sysmem(data), 0x7fff, 0x7fff, true);
+#else
+	data =  SPLASH_START(u_boot_logo);
 	ret = video_bmp_display(dev, map_to_sysmem(data), -4, 4, true);
-
+#endif
 	return 0;
 }
 
@@ -497,7 +509,7 @@ static int video_post_probe(struct udevice *dev)
 		return ret;
 	}
 
-	if (IS_ENABLED(CONFIG_VIDEO_LOGO) &&
+	if ((IS_ENABLED(CONFIG_VIDEO_LOGO) || IS_ENABLED(CONFIG_VIDEO_LOGO_SCIAPS)) &&
 	    !IS_ENABLED(CONFIG_SPLASH_SCREEN) && !plat->hide_logo) {
 		ret = show_splash(dev);
 		if (ret) {

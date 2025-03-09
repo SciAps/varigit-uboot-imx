@@ -14,6 +14,7 @@
 #include <asm-generic/gpio.h>
 #include <asm/arch/imx8mp_pins.h>
 #include <asm/arch/sys_proto.h>
+//#include <asm/mach-imx/sys_proto.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch/clock.h>
@@ -329,7 +330,6 @@ int board_usb_init(int index, enum usb_init_type init)
 			return -ENODEV;
 	}
 #endif
-
 	if (index == 0 && init == USB_INIT_DEVICE) {
 #ifdef CONFIG_USB_TCPC
 		ret = tcpc_setup_ufp_mode(&port1);
@@ -379,6 +379,28 @@ int board_ehci_usb_phy_mode(struct udevice *dev)
 #endif
 #endif
 
+#define FSL_SIP_GPC			(unsigned long)0xC2000000
+#define FSL_SIP_CONFIG_GPC_PM_DOMAIN	(unsigned long)0x3
+#define DISPMIX				(unsigned long)13
+#define MIPI				(unsigned long)15
+
+unsigned long call_imx_sip(unsigned long id, unsigned long reg0,
+			   unsigned long reg1, unsigned long reg2,
+			   unsigned long reg3)
+{
+	struct pt_regs regs;
+
+	regs.regs[0] = id;
+	regs.regs[1] = reg0;
+	regs.regs[2] = reg1;
+	regs.regs[3] = reg2;
+	regs.regs[4] = reg3;
+
+	smc_call(&regs);
+
+	return regs.regs[0];
+}
+
 int board_init(void)
 {
 #ifdef CONFIG_EXTCON_PTN5150
@@ -401,6 +423,10 @@ int board_init(void)
 #if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_IMX8M)
 	init_usb_clk();
 #endif
+
+	/* enable the dispmix & mipi phy power domain */
+	call_imx_sip(FSL_SIP_GPC, FSL_SIP_CONFIG_GPC_PM_DOMAIN, DISPMIX, true, 0);
+	call_imx_sip(FSL_SIP_GPC, FSL_SIP_CONFIG_GPC_PM_DOMAIN, MIPI, true, 0);
 
 	return 0;
 }

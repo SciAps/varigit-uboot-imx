@@ -17,8 +17,10 @@ obj-$(CONFIG_VIDEO) += video_bmp.o
 obj-$(CONFIG_PANEL) += panel-uclass.o
 obj-$(CONFIG_PANEL_HX8238D) += hx8238d.o
 obj-$(CONFIG_SIMPLE_PANEL) += simple_panel.o
+obj-$(CONFIG_PANEL_ORTUS_COM35H3N82ULC) += ortus-com35h3n82ulc.o
 
 obj-$(CONFIG_VIDEO_LOGO) += u_boot_logo.o
+obj-$(CONFIG_VIDEO_LOGO_SCIAPS) += u_boot_logo_sciaps.o
 
 obj-$(CONFIG_VIDEO_LINK) += video_link.o
 endif

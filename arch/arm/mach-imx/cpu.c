@@ -352,7 +352,9 @@ void arch_preboot_os(void)
 	mxc_disable_gis();
 #endif
 #if defined(CONFIG_VIDEO_MXS) && !defined(CONFIG_VIDEO)
+#if !IS_ENABLED(CONFIG_VIDEO_LOGO_KEEP_IT_ON)
 	lcdif_power_down();
+#endif
 #endif
 }
 

@@ -181,9 +181,9 @@ int board_fit_config_name_match(const char *name)
 	int som_rev = SOMREV_MAJOR(ep->somrev);
 
 	if (board_id == BOARD_ID_DART) {
-		if (som_rev >= 2 && !strcmp(name, "imx8mp-var-dart-dt8mcustomboard"))
+		if (som_rev >= 2 && ((0 == strcmp(name, "imx8mp-var-dart-dt8mcustomboard")) || (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers"))))
 			return 0;
-		else if (som_rev < 2 && !strcmp(name, "imx8mp-var-dart-1.x-dt8mcustomboard"))
+		else if (som_rev < 2 && ((0 == strcmp(name, "imx8mp-var-dart-1.x-dt8mcustomboard")) || (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers"))))
 			return 0;
 	} else if ((board_id == BOARD_ID_SOM) && !strcmp(name, "imx8mp-var-som-symphony")) {
 		return 0;

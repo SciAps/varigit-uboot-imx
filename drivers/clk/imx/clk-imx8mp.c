@@ -64,6 +64,10 @@ static const char *imx8mp_ahb_sels[] = {"clock-osc-24m", "sys_pll1_133m", "sys_p
 					"sys_pll1_400m", "sys_pll2_125m", "sys_pll3_out",
 					"audio_pll1_out", "video_pll1_out", };
 
+static const char *imx8mp_mipi_dsi_esc_rx_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll1_80m",
+							   "sys_pll1_800m", "sys_pll2_1000m",
+							   "sys_pll3_out", "clk_ext3", "audio_pll2_out", };
+
 static const char *imx8mp_dram_alt_sels[] = {"clock-osc-24m", "sys_pll1_800m", "sys_pll1_100m",
 					     "sys_pll2_500m", "sys_pll2_1000m", "sys_pll3_out",
 					     "audio_pll1_out", "sys_pll1_266m", };
@@ -143,6 +147,11 @@ static const char *imx8mp_ecspi2_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sy
 static const char *imx8mp_ecspi3_sels[] = {"clock-osc-24m", "sys_pll2_200m", "sys_pll1_40m",
 						  "sys_pll1_160m", "sys_pll1_800m", "sys_pll3_out",
 						  "sys_pll2_250m", "audio_pll2_out", };
+
+static const char *imx8mp_pwm1_sels[] = {"clock-osc-24m", "sys_pll2_100m", "sys_pll1_160m",
+						"sys_pll1_40m", "sys_pll3_out", "clk_ext1",
+						"sys_pll1_80m", "video_pll1_out", };
+
 
 static const char *imx8mp_wdog_sels[] = {"clock-osc-24m", "sys_pll1_133m", "sys_pll1_160m",
 					 "vpu_pll_out", "sys_pll2_125m", "sys_pll3_out",
@@ -286,6 +295,8 @@ static int imx8mp_clk_probe(struct udevice *dev)
 
 	clk_dm(IMX8MP_CLK_AHB, imx8m_clk_composite_critical("ahb_root", imx8mp_ahb_sels, base + 0x9000));
 
+	clk_dm(IMX8MP_CLK_MIPI_DSI_ESC_RX, imx8m_clk_composite("mipi_dsi_esc_rx", imx8mp_mipi_dsi_esc_rx_sels, base + 0x9200));
+
 	clk_dm(IMX8MP_CLK_IPG_ROOT, imx_clk_divider2("ipg_root", "ahb_root", base + 0x9080, 0, 1));
 
 	clk_dm(IMX8MP_CLK_DRAM_ALT, imx8m_clk_composite("dram_alt", imx8mp_dram_alt_sels, base + 0xa000));
@@ -314,6 +325,7 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_CLK_ECSPI1, imx8m_clk_composite("ecspi1", imx8mp_ecspi1_sels, base + 0xb280));
 	clk_dm(IMX8MP_CLK_ECSPI2, imx8m_clk_composite("ecspi2", imx8mp_ecspi2_sels, base + 0xb300));
 	clk_dm(IMX8MP_CLK_ECSPI3, imx8m_clk_composite("ecspi3", imx8mp_ecspi3_sels, base + 0xc180));
+	clk_dm(IMX8MP_CLK_PWM1, imx8m_clk_composite("pwm1", imx8mp_pwm1_sels, base + 0xb380));
 
 	clk_dm(IMX8MP_CLK_WDOG, imx8m_clk_composite("wdog", imx8mp_wdog_sels, base + 0xb900));
 	clk_dm(IMX8MP_CLK_USDHC3, imx8m_clk_composite("usdhc3", imx8mp_usdhc3_sels, base + 0xbc80));
@@ -329,6 +341,7 @@ static int imx8mp_clk_probe(struct udevice *dev)
 	clk_dm(IMX8MP_CLK_ECSPI1_ROOT, imx_clk_gate4("ecspi1_root_clk", "ecspi1", base + 0x4070, 0));
 	clk_dm(IMX8MP_CLK_ECSPI2_ROOT, imx_clk_gate4("ecspi2_root_clk", "ecspi2", base + 0x4080, 0));
 	clk_dm(IMX8MP_CLK_ECSPI3_ROOT, imx_clk_gate4("ecspi3_root_clk", "ecspi3", base + 0x4090, 0));
+	clk_dm(IMX8MP_CLK_PWM1_ROOT, imx_clk_gate4("pwm1_root_clk", "pwm1", base + 0x4280, 0));
 	clk_dm(IMX8MP_CLK_ENET1_ROOT, imx_clk_gate4("enet1_root_clk", "enet_axi", base + 0x40a0, 0));
 	clk_dm(IMX8MP_CLK_GPIO1_ROOT, imx_clk_gate4("gpio1_root_clk", "ipg_root", base + 0x40b0, 0));
 	clk_dm(IMX8MP_CLK_GPIO2_ROOT, imx_clk_gate4("gpio2_root_clk", "ipg_root", base + 0x40c0, 0));

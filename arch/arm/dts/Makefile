@@ -1085,6 +1085,8 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-var-dart-dt8mcustomboard.dtb \
 	imx8mp-var-dart-1.x-dt8mcustomboard.dtb \
 	imx8mp-var-som-symphony.dtb \
+	imx8mp-var-dart-sciaps-analyzers.dtb \
+	imx8mp-var-dart-1.x-sciaps-analyzers.dtb \
 	imx8mq-pico-pi.dtb \
 	imx8mq-kontron-pitx-imx8m.dtb \
 	imx8mq-librem5-r4.dtb
