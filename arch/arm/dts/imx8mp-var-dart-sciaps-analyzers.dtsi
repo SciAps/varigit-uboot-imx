@@ -235,7 +235,7 @@
 
 &usb_dwc3_0 {
 	dr_mode = "otg";
-	//extcon = <&ptn5150>;
+	extcon = <&ptn5150>;
 	hnp-disable;
 	srp-disable;
 	adp-disable;
