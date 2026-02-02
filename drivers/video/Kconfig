@@ -247,6 +247,13 @@ config PANEL_ORTUS_COM35H3N82ULC
 	  Say Y here if you want to enable support for Ortus Technology
 	  com35h3n82ulc 3.5in 480x640 dsi 2dl panel.
 
+config PANEL_ORTUS_COM27H2P37ULC_CITROBITS
+	tristate "Ortustech PANEL_ORTUS_COM27H2P37ULC 2.7in 240x320 LCD panel - Citrobits"
+	depends on PANEL && BACKLIGHT
+	help
+	  Say Y here if you want to enable support for Ortus Technology
+	  com27h2p37ulc 2.7in 240x320 dsi CitroBits 1dl panel.
+
 source "drivers/video/fonts/Kconfig"
 
 config VIDCONSOLE_AS_LCD

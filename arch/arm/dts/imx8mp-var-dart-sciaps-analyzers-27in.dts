@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2025 SciAps
+ */
+
+#include "imx8mp-var-dart-sciaps-analyzers-27in.dtsi"
+
+/ {
+	model = "SciAps Analyzers based on Variscite DART-MX8M-PLUS SOM 2.0 and above - v0.1 - 2.7in Display";
+};
