@@ -34,6 +34,7 @@
 #include <dm/root.h>
 
 #include "../common/imx8_eeprom.h"
+#include "../common/sciaps_eeprom.h"
 #include "imx8mp_var_dart.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -173,105 +174,6 @@ void spl_board_init(void)
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
-#include <i2c.h>
-#include <dm.h> // Include this if your U-Boot uses Driver Model
-#define SCIAPS_EEPROM_I2C_ADDR   0x54
-#define SCIAPS_EEPROM_I2C_BUS     1
-
-struct __attribute__((packed)) sciaps_eeprom {
-	uint16_t	magic;
-	uint8_t		platform;
-	uint8_t		display;
-};
-
-static struct sciaps_eeprom s_sciaps_eeprom = {0};
-
-#if CONFIG_IS_ENABLED(DM_I2C)
-static int	sciaps_eeprom_get_dev(struct udevice **devp)
-{
-	int ret;
-	struct udevice *bus;
-
-	printf("%s: Enter\n", __func__);
-	ret = uclass_get_device_by_seq(UCLASS_I2C, SCIAPS_EEPROM_I2C_BUS, &bus);
-	if (ret) {
-		printf("%s: No EEPROM I2C bus %d\n", __func__, SCIAPS_EEPROM_I2C_BUS);
-		return ret;
-	}
-
-	ret = dm_i2c_probe(bus, SCIAPS_EEPROM_I2C_ADDR, 0, devp);
-	if (ret) {
-		printf("%s: I2C EEPROM probe failed\n", __func__);
-		return ret;
-	}
-
-	return 0;
-}
-
-int sciaps_eeprom_read_header(struct sciaps_eeprom *e)
-{
-	int ret;
-	struct udevice *dev;
-
-	printf("%s: Enter\n", __func__);
-	ret = sciaps_eeprom_get_dev(&dev);
-	if (ret) {
-		printf("%s: Failed to detect I2C EEPROM\n", __func__);
-		return ret;
-	}
-
-	/* Read EEPROM header to memory */
-	ret = dm_i2c_read(dev, 0, (void *)e, sizeof(*e));
-	if (ret) {
-		printf("%s: EEPROM read failed, ret=%d\n", __func__, ret);
-		return ret;
-	}
-
-	return 0;
-}
-#else
-int sciaps_eeprom_read_header(struct sciaps_eeprom *e)
-{
-	int ret;
-	printf("%s: Enter\n", __func__);
-	/* Probe EEPROM */
-	i2c_set_bus_num(SCIAPS_EEPROM_I2C_BUS);
-	ret = i2c_probe(SCIAPS_EEPROM_I2C_ADDR);
-	if (ret) {
-		printf("%s: I2C EEPROM probe failed\n", __func__);
-		return ret;
-	}
-
-	/* Read EEPROM header to memory */
-	ret = i2c_read(SCIAPS_EEPROM_I2C_ADDR, 0, 1, (uint8_t *)e, sizeof(*e));
-	if (ret) {
-		printf("%s: EEPROM read failed ret=%d\n", __func__, ret);
-		return ret;
-	}
-
-	return 0;
-}
-#endif /* CONFIG_DM_I2C */
-
-uint8_t sciaps_eeprom_get_display_type(void)
-{
-
-
-	int ret;
-
-	ret = sciaps_eeprom_read_header(&s_sciaps_eeprom);
-
-    if (ret == 0) {
-        //printf("Magic: 0x%04x\n", s_sciaps_eeprom.magic);
-        //printf("Platform: 0x%02x\n", s_sciaps_eeprom.platform);
-        //printf("Display: 0x%02x\n", s_sciaps_eeprom.display);
-    } else {
-        printf("I2C read failed: %d\n", ret);
-    }
-
-    return s_sciaps_eeprom.display;
-}
-
 int board_fit_config_name_match(const char *name)
 {
 	int board_id = var_detect_board_id();
@@ -279,20 +181,21 @@ int board_fit_config_name_match(const char *name)
 	struct var_eeprom *ep = VAR_EEPROM_DATA;
 	int som_rev = SOMREV_MAJOR(ep->somrev);
 
-	uint8_t display = sciaps_eeprom_get_display_type();
+	uint8_t display = sciaps_eeprom_get_display();
 
 	if (board_id == BOARD_ID_DART) {
-		// imx8mp-var-dart-sciaps-analyzers-27in / imx8mp-var-dart-sciaps-analyzers-35in
-
-		if (display == 0x27 && (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers-27in")))
-			return 0;
-		else if (display == 0x35 && (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers-35in")))
-			return 0;
-
-		if (som_rev >= 2 && ((0 == strcmp(name, "imx8mp-var-dart-dt8mcustomboard")) || (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers"))))
-			return 0;
-		else if (som_rev < 2 && ((0 == strcmp(name, "imx8mp-var-dart-1.x-dt8mcustomboard")) || (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers"))))
-			return 0;
+		if (som_rev >= 2) {
+			if ((0 == strcmp(name, "imx8mp-var-dart-dt8mcustomboard"))
+					|| (display == 0x27 && (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers-otd-27in-citrobits")))
+					|| (display == 0x35 && (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers-otd-35in"))))
+				return 0;
+		}
+		else if (som_rev < 2) {
+			if ((0 == strcmp(name, "imx8mp-var-dart-1.x-dt8mcustomboard"))
+					|| (display == 0x27 && (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers-otd-27in-citrobits")))
+					|| (display == 0x35 && (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers-otd-35in"))))
+				return 0;
+		}
 	} else if ((board_id == BOARD_ID_SOM) && !strcmp(name, "imx8mp-var-som-symphony")) {
 		return 0;
 	}

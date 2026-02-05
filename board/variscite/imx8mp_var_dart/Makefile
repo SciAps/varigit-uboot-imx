@@ -6,6 +6,7 @@
 #
 
 obj-y += imx8mp_var_dart.o ../common/imx8_eeprom.o
+obj-y += ../common/sciaps_eeprom.o
 
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
