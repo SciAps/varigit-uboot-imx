@@ -21,6 +21,8 @@
 /* Write Manufacture Command Set Control */
 #define WRMAUCCTR 0xFE
 
+#define PANEL_RESET_ENABLE 0
+
 struct ortus_com27h2p37ulc_citrobits_panel_priv {
 	struct udevice *backlight;
 	struct gpio_desc reset;
@@ -59,7 +61,7 @@ static const struct display_timing default_timing = {
 	.vback_porch.typ	= 10,
 	.flags = DISPLAY_FLAGS_HSYNC_LOW |
 		 DISPLAY_FLAGS_VSYNC_LOW |
-		 DISPLAY_FLAGS_DE_LOW |
+		 DISPLAY_FLAGS_DE_HIGH |
 		 DISPLAY_FLAGS_PIXDATA_NEGEDGE,
 };
 
@@ -238,24 +240,34 @@ static int ortus_com27h2p37ulc_citrobits_panel_probe(struct udevice *dev)
 			return ret;
 	}
 
+#if PANEL_RESET_ENABLE
 	/* reset panel */
-	//--ret = dm_gpio_set_value(&priv->reset, true);
-	//--if (ret)
-	//--	printf("reset gpio fails to set true\n");
-	//--mdelay(100);
+	ret = dm_gpio_set_value(&priv->reset, true);
+	if (ret)
+		printf("reset gpio fails to set true\n");
+	mdelay(100);
+#endif
 	ret = dm_gpio_set_value(&priv->reset, false);
 	if (ret)
 		printf("reset gpio fails to set true\n");
-	//--mdelay(100);
+
+#if PANEL_RESET_ENABLE
+	mdelay(100);
+#endif
 
 	return 0;
 }
 
 static int ortus_com27h2p37ulc_citrobits_panel_disable(struct udevice *dev)
 {
-	//--struct ortus_com27h2p37ulc_citrobits_panel_priv *priv = dev_get_priv(dev);
+#if PANEL_RESET_ENABLE
+	struct ortus_com27h2p37ulc_citrobits_panel_priv *priv = dev_get_priv(dev);
 
-	//--dm_gpio_set_value(&priv->reset, true);
+	printf("----> %s: Enter\n", __func__);
+	dm_gpio_set_value(&priv->reset, true);
+#else
+	(void)dev;
+#endif
 
 	return 0;
 }
