@@ -271,7 +271,6 @@
 
 #define	PS2KHZ(ps)	(1000000000UL / (ps))
 
-#define MIPI_xxx_PKT_OVERHEAD_USE	0
 #define MIPI_HFP_PKT_OVERHEAD	6
 #define MIPI_HBP_PKT_OVERHEAD	6
 #define MIPI_HSA_PKT_OVERHEAD	6
@@ -828,11 +827,11 @@ static void sec_mipi_dsim_set_main_mode(struct sec_mipi_dsim *dsim)
 
 	wc = DIV_ROUND_UP(timings->hfront_porch.typ* (bpp >> 3),
 		dsim->lanes);
-	hfp_wc = (MIPI_xxx_PKT_OVERHEAD_USE && wc > MIPI_HFP_PKT_OVERHEAD) ?
+	hfp_wc = wc > MIPI_HFP_PKT_OVERHEAD ?
 		wc - MIPI_HFP_PKT_OVERHEAD : timings->hfront_porch.typ;
 	wc = DIV_ROUND_UP(timings->hback_porch.typ * (bpp >> 3),
 		dsim->lanes);
-	hbp_wc = (MIPI_xxx_PKT_OVERHEAD_USE && wc > MIPI_HBP_PKT_OVERHEAD) ?
+	hbp_wc = wc > MIPI_HBP_PKT_OVERHEAD ?
 		wc - MIPI_HBP_PKT_OVERHEAD : timings->hback_porch.typ;
 
 	mhporch |= MHPORCH_SET_MAINHFP(hfp_wc) |
@@ -842,7 +841,7 @@ static void sec_mipi_dsim_set_main_mode(struct sec_mipi_dsim *dsim)
 
 	wc = DIV_ROUND_UP(timings->hsync_len.typ * (bpp >> 3),
 		dsim->lanes);
-	hsa_wc = (MIPI_xxx_PKT_OVERHEAD_USE && wc > MIPI_HSA_PKT_OVERHEAD) ?
+	hsa_wc = wc > MIPI_HSA_PKT_OVERHEAD ?
 		wc - MIPI_HSA_PKT_OVERHEAD : timings->hsync_len.typ;
 
 	msync |= MSYNC_SET_MAINVSA(timings->vsync_len.typ) |
