@@ -812,6 +812,13 @@ static void sec_mipi_dsim_set_main_mode(struct sec_mipi_dsim *dsim)
 	uint32_t bpp, hfp_wc, hbp_wc, hsa_wc, wc;
 	uint32_t mdresol = 0, mvporch = 0, mhporch = 0, msync = 0;
 	struct display_timing *timings = &dsim->timings;
+	bool force_no_overhead = false;
+
+
+	if (dsim->lanes == 1 && timings->hactive.typ == 240 && timings->vactive.typ == 320) {
+		// Ortus COM27H2P37ULC with Citrobits bridge
+		force_no_overhead = true;
+	}
 
 	mdresol |= MDRESOL_SET_MAINVRESOL(timings->vactive.typ) |
 		   MDRESOL_SET_MAINHRESOL(timings->hactive.typ);
@@ -827,11 +834,11 @@ static void sec_mipi_dsim_set_main_mode(struct sec_mipi_dsim *dsim)
 
 	wc = DIV_ROUND_UP(timings->hfront_porch.typ* (bpp >> 3),
 		dsim->lanes);
-	hfp_wc = wc > MIPI_HFP_PKT_OVERHEAD ?
+	hfp_wc = (!force_no_overhead && wc > MIPI_HFP_PKT_OVERHEAD) ?
 		wc - MIPI_HFP_PKT_OVERHEAD : timings->hfront_porch.typ;
 	wc = DIV_ROUND_UP(timings->hback_porch.typ * (bpp >> 3),
 		dsim->lanes);
-	hbp_wc = wc > MIPI_HBP_PKT_OVERHEAD ?
+	hbp_wc = (!force_no_overhead && wc > MIPI_HBP_PKT_OVERHEAD) ?
 		wc - MIPI_HBP_PKT_OVERHEAD : timings->hback_porch.typ;
 
 	mhporch |= MHPORCH_SET_MAINHFP(hfp_wc) |
@@ -841,7 +848,7 @@ static void sec_mipi_dsim_set_main_mode(struct sec_mipi_dsim *dsim)
 
 	wc = DIV_ROUND_UP(timings->hsync_len.typ * (bpp >> 3),
 		dsim->lanes);
-	hsa_wc = wc > MIPI_HSA_PKT_OVERHEAD ?
+	hsa_wc = (!force_no_overhead && wc > MIPI_HSA_PKT_OVERHEAD) ?
 		wc - MIPI_HSA_PKT_OVERHEAD : timings->hsync_len.typ;
 
 	msync |= MSYNC_SET_MAINVSA(timings->vsync_len.typ) |
