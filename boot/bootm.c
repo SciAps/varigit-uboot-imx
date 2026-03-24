@@ -628,6 +628,30 @@ int bootm_process_cmdline_env(int flags)
 	/* First check if any action is needed */
 	do_silent = IS_ENABLED(CONFIG_SILENT_CONSOLE) &&
 	    !IS_ENABLED(CONFIG_SILENT_U_BOOT_ONLY) && (flags & BOOTM_CL_SILENT);
+
+	if (IS_ENABLED(CONFIG_BOOTARGS_SCIAPS_ADD_SOM_REV)) {
+		const char* sciaps_bootargs_som_rev = " androidboot.sciaps.som_rev=";
+		const char *som_rev_env;
+		env = env_get("bootargs");
+		som_rev_env = env_get("som_rev");
+
+		if (env && som_rev_env && strlen(env) + strlen(som_rev_env) + strlen(sciaps_bootargs_som_rev) < maxlen) {
+			buf = malloc(maxlen);
+			if (!buf)
+				return -ENOMEM;
+
+			strcpy(buf, env);
+			strcat(buf, sciaps_bootargs_som_rev);
+			strcat(buf, som_rev_env);
+
+			ret = env_set("bootargs", buf);
+
+			if (ret == -ENOENT)
+				ret = 0;
+
+			free(buf);
+		}
+	}
 	if (!do_silent && !IS_ENABLED(CONFIG_BOOTARGS_SUBST))
 		return 0;
 

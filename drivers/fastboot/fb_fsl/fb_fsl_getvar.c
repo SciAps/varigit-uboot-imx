@@ -75,6 +75,7 @@ char *fastboot_common_var[] = {
 #endif
 	"tee_enabled",
 	"soc_rev",
+	"som_rev",
 };
 
 /* at-vboot-state variable list */
@@ -438,6 +439,10 @@ static int get_single_var(char *cmd, char *response)
 #endif
 	else if (!strcmp_l1("soc_rev", cmd)) {
 		s = env_get("soc_rev");
+		strncat(response, s ? s : "N/A", chars_left);
+	}
+	else if (!strcmp_l1("som_rev", cmd)) {
+		s = env_get("som_rev");
 		strncat(response, s ? s : "N/A", chars_left);
 	}
         else if (!strcmp_l1("tee_enabled", cmd)) {

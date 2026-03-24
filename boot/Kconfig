@@ -1521,6 +1521,12 @@ config BOOTARGS_SUBST
 		# kernel command line
 		bootm
 
+config BOOTARGS_SCIAPS_ADD_SOM_REV
+	bool "SciAps: Support som_rev in boot arguments"
+	help
+	  This allows adding androidboot.sciaps.som_rev string value in the boot arguments. These
+	  are applied after the commandline has been built.
+
 config USE_BOOTCOMMAND
 	bool "Enable a default value for bootcmd"
 	help
