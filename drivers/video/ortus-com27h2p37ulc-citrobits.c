@@ -21,7 +21,7 @@
 /* Write Manufacture Command Set Control */
 #define WRMAUCCTR 0xFE
 
-#define PANEL_RESET_ENABLE 0
+#define PANEL_RESET_ENABLE 1
 
 struct ortus_com27h2p37ulc_citrobits_panel_priv {
 	struct udevice *backlight;
@@ -263,7 +263,6 @@ static int ortus_com27h2p37ulc_citrobits_panel_disable(struct udevice *dev)
 #if PANEL_RESET_ENABLE
 	struct ortus_com27h2p37ulc_citrobits_panel_priv *priv = dev_get_priv(dev);
 
-	printf("----> %s: Enter\n", __func__);
 	dm_gpio_set_value(&priv->reset, true);
 #else
 	(void)dev;
