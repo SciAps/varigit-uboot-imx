@@ -2,7 +2,7 @@
 /*
  * Copyright 2019 NXP
  * Copyright 2020-2023 Variscite Ltd.
- * Copyright 2025 SciAps
+ * Copyright 2026 SciAps
  */
 
 #include "imx8mp-var-common-u-boot.dtsi"

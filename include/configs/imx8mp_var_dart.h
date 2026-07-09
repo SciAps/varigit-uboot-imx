@@ -114,11 +114,11 @@
 				"fi; " \
 			"else " \
 				"if test ${som_rev} -lt 2; then " \
-					"setenv fdt_file imx8mp-var-dart-1.x-sciaps-analyzers.dtb; " \
+					"setenv fdt_file imx8mp-var-dart-1.x-sciaps-analyzers-otd-35in.dtb; " \
 				"elif test ${som_has_wbe} = 1; then " \
 					"setenv fdt_file imx8mp-var-dart-wbe-dt8mcustomboard.dtb; " \
 				"else " \
-					"setenv fdt_file imx8mp-var-dart-sciaps-analyzers.dtb;" \
+					"setenv fdt_file imx8mp-var-dart-sciaps-analyzers-otd-35in.dtb;" \
 				"fi; " \
 			"fi; " \
 		"fi; \0" \

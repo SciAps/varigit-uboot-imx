@@ -1087,13 +1087,18 @@ dtb-$(CONFIG_ARCH_IMX8M) += \
 	imx8mp-var-som-symphony.dtb \
 	imx8mp-var-dart-1.x-sciaps-analyzers-otd-27in-citrobits.dtb \
 	imx8mp-var-dart-1.x-sciaps-analyzers-otd-35in.dtb \
-	imx8mp-var-dart-1.x-sciaps-analyzers.dtb \
+	imx8mp-var-dart-1.x-sciaps-analyzers-nh-70in.dtb \
+	imx8mp-var-dart-1.x-sciaps-analyzers-nh-70in-eth.dtb \
 	imx8mp-var-dart-sciaps-analyzers-otd-27in-citrobits.dtb \
 	imx8mp-var-dart-sciaps-analyzers-otd-35in.dtb \
-	imx8mp-var-dart-sciaps-analyzers.dtb \
+	imx8mp-var-dart-sciaps-analyzers-nh-70in.dtb \
+	imx8mp-var-dart-sciaps-analyzers-nh-70in-eth.dtb \
 	imx8mq-pico-pi.dtb \
 	imx8mq-kontron-pitx-imx8m.dtb \
 	imx8mq-librem5-r4.dtb
+
+	#imx8mp-var-dart-1.x-sciaps-analyzers.dtb \
+	imx8mp-var-dart-sciaps-analyzers.dtb \
 
 dtb-$(CONFIG_ARCH_IMX9) += \
 	imx95-19x19-evk.dtb \

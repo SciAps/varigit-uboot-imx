@@ -12,11 +12,6 @@
 #endif
 
 / {
-	aliases {
-		gpio5 = &pca6408_1;
-		gpio6 = &pca6408_2;
-	};
-
 	chosen {
 		stdout-path = &uart1;
 	};
@@ -98,7 +93,7 @@
 			reg = <1>;
 			at803x,eee-disabled;
 			eee-broken-1000t;
-			reset-gpios = <&pca6408_2 0 GPIO_ACTIVE_LOW>;
+			//reset-gpios = <&pca6408_2 0 GPIO_ACTIVE_LOW>;
 			reset-assert-us = <10000>;
 			reset-deassert-us = <20000>;
 			vddio-supply = <&vddio1>;
@@ -156,20 +151,6 @@
 	scl-gpios = <&gpio5 20 GPIO_ACTIVE_HIGH>;
 	sda-gpios = <&gpio5 21 GPIO_ACTIVE_HIGH>;
 	status = "okay";
-
-	pca6408_1: gpio@20 {
-		compatible = "ti,tca6408";
-		reg = <0x20>;
-		gpio-controller;
-		#gpio-cells = <2>;
-	};
-
-	pca6408_2: gpio@21 {
-		compatible = "ti,tca6408";
-		reg = <0x21>;
-		gpio-controller;
-		#gpio-cells = <2>;
-	};
 };
 
 &lcdif1 {

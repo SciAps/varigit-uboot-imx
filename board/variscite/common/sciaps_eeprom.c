@@ -81,6 +81,9 @@ int sciaps_eeprom_read_header(struct sciaps_eeprom *e)
 		debug("%s: EEPROM read failed ret=%d\n", __func__, ret);
 		return ret;
 	}
+	else {
+		debug("%s: SciAps EEPROM: magic: 0x%x; platform: 0x%x; display: 0x%x;\n", __func__, e->magic, e->platform, e->display);
+	}
 
 	return 0;
 }
@@ -99,7 +102,24 @@ uint8_t sciaps_eeprom_get_display(void)
 			return s_sciaps_eeprom.display;
 		}
     } else {
-        debug("I2C read failed: %d\n", ret);
+        printf("SciAps EEPROM read failed: %d\n", ret);
+    }
+
+    return 0xff;
+}
+
+uint8_t sciaps_eeprom_get_platform(void)
+{
+	int ret;
+
+	ret = sciaps_eeprom_read_header(&s_sciaps_eeprom);
+
+    if (ret == 0) {
+		if (sciaps_eeprom_is_valid(&s_sciaps_eeprom)) {
+			return s_sciaps_eeprom.platform;
+		}
+    } else {
+        printf("SciAps EEPROM read failed: %d\n", ret);
     }
 
     return 0xff;

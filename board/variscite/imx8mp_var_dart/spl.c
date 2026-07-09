@@ -182,18 +182,26 @@ int board_fit_config_name_match(const char *name)
 	int som_rev = SOMREV_MAJOR(ep->somrev);
 
 	uint8_t display = sciaps_eeprom_get_display();
+	uint8_t platform = sciaps_eeprom_get_platform();
 
 	if (board_id == BOARD_ID_DART) {
 		if (som_rev >= 2) {
 			if ((0 == strcmp(name, "imx8mp-var-dart-dt8mcustomboard"))
-					|| (display == 0x27 && (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers-otd-27in-citrobits")))
-					|| (display == 0x35 && (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers-otd-35in"))))
+					|| (display == SCIAPS_EEPROM_DISPLAY_OTD_27in_Citrobits && (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers-otd-27in-citrobits")))
+					|| (display == SCIAPS_EEPROM_DISPLAY_OTD_35in && (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers-otd-35in")))
+					|| (SCIAPS_EEPROM_PLATFORM_BASE_CHECK(platform, SCIAPS_EEPROM_PLATFORM_BASE_NGSR) && display == SCIAPS_EEPROM_DISPLAY_NH_70in && (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers-nh-70in-eth")))
+					|| (display == SCIAPS_EEPROM_DISPLAY_NH_70in && (0 == strcmp(name, "imx8mp-var-dart-sciaps-analyzers-nh-70in")))
+					)
 				return 0;
 		}
 		else if (som_rev < 2) {
 			if ((0 == strcmp(name, "imx8mp-var-dart-1.x-dt8mcustomboard"))
-					|| (display == 0x27 && (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers-otd-27in-citrobits")))
-					|| (display == 0x35 && (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers-otd-35in"))))
+					|| (display == SCIAPS_EEPROM_DISPLAY_OTD_27in_Citrobits && (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers-otd-27in-citrobits")))
+					|| (display == SCIAPS_EEPROM_DISPLAY_OTD_35in && (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers-otd-35in")))
+					|| (display == SCIAPS_EEPROM_DISPLAY_NH_70in && (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers-nh70in")))
+					|| (SCIAPS_EEPROM_PLATFORM_BASE_CHECK(platform, SCIAPS_EEPROM_PLATFORM_BASE_NGSR) && display == SCIAPS_EEPROM_DISPLAY_NH_70in && (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers-nh70in-eth")))
+					|| (display == SCIAPS_EEPROM_DISPLAY_NH_70in && (0 == strcmp(name, "imx8mp-var-dart-1.x-sciaps-analyzers-nh70in")))
+					)
 				return 0;
 		}
 	} else if ((board_id == BOARD_ID_SOM) && !strcmp(name, "imx8mp-var-som-symphony")) {

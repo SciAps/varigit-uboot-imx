@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2019 NXP
+ * Copyright 2020-2023 Variscite Ltd.
+ * Copyright 2026 SciAps.
+ */
+
+#include "imx8mp-var-dart-sciaps-analyzers-nh-70in.dtsi"
+
+&eqos {
+	status = "okay";
+
+	/delete-property/ assigned-clocks;
+    /delete-property/ assigned-clock-parents;
+    /delete-property/ assigned-clock-rates;
+
+	mdio {
+		ethphy0: ethernet-phy@0 {
+			status = "okay";
+		};
+		ethphy1: ethernet-phy@1 {
+			status = "disabled";
+		};
+	};
+};
+
+&fec {
+	status = "disabled";
+};
