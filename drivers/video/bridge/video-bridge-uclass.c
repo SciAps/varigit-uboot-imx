@@ -14,6 +14,16 @@
 #include <video_bridge.h>
 #include <linux/delay.h>
 
+int video_bridge_get_dsi_config(struct udevice *dev, struct mipi_dsi_device *device)
+{
+	struct video_bridge_ops *ops = video_bridge_get_ops(dev);
+
+	if (!ops->get_dsi_config)
+		return -ENOSYS;
+
+	return ops->get_dsi_config(dev, device);
+}
+
 int video_bridge_set_backlight(struct udevice *dev, int percent)
 {
 	struct video_bridge_ops *ops = video_bridge_get_ops(dev);

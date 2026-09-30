@@ -26,6 +26,7 @@ struct imx_sec_dsim_priv {
 	void __iomem *base;
 	struct udevice *panel;
 	struct udevice *dsi_host;
+	struct udevice *bridge;
 	struct display_timing adj;
 };
 
@@ -35,12 +36,34 @@ static int imx_sec_dsim_attach(struct udevice *dev)
 	struct mipi_dsi_device *device = &priv->device;
 	struct mipi_dsi_panel_plat *mplat;
 	struct display_timing timings;
+	struct udevice *next;
 	int ret;
 
-	priv->panel = video_link_get_next_device(dev);
-	if (!priv->panel ||
-		device_get_uclass_id(priv->panel) != UCLASS_PANEL) {
-		dev_err(dev, "get panel device error\n");
+	next = video_link_get_next_device(dev);
+	if (!next) {
+		dev_err(dev, "no downstream device\n");
+		return -ENODEV;
+	}
+
+	if (device_get_uclass_id(next) == UCLASS_VIDEO_BRIDGE) {
+		priv->bridge = next;
+		priv->panel = video_link_get_next_device(next);
+
+		if (!priv->panel ||
+			device_get_uclass_id(priv->panel) != UCLASS_PANEL) {
+			dev_err(dev, "failed to get panel behind bridge\n");
+			return -ENODEV;
+		}
+
+		dev_info(dev, "bridge %s -> panel %s\n", next->name, priv->panel->name);
+	}
+	else if (device_get_uclass_id(next) == UCLASS_PANEL) {
+		priv->bridge = NULL;
+		priv->panel = next;
+
+	}
+	else {
+		dev_err(dev, "unsupported downstream device %s, uclass=%d\n", next->name, device_get_uclass_id(next));
 		return -ENODEV;
 	}
 
@@ -61,13 +84,33 @@ static int imx_sec_dsim_attach(struct udevice *dev)
 		return ret;
 	}
 
-	ret = dsi_host_init(priv->dsi_host, device, &timings, 4,
-			    NULL);
+	if (priv->bridge) {
+		ret = video_bridge_get_dsi_config(priv->bridge, device);
+		if (ret) {
+			dev_err(dev, "failed to get DSI config from %s: %d\n", priv->bridge->name, ret);
+			return ret;
+		}
+	}
+
+	ret = dsi_host_init(priv->dsi_host, device, &timings, 4, NULL);
 	if (ret) {
 		dev_err(dev, "failed to initialize mipi dsi host\n");
 		return ret;
 	}
 
+	if (priv->bridge) {
+		ret = mipi_dsi_attach(device);
+		if (ret) {
+			dev_err(dev, "mipi_dsi_attach failed: %d\n", ret);
+			return ret;
+		}
+
+		ret = video_bridge_attach(priv->bridge);
+		if (ret) {
+			dev_err(dev, "failed to attach downstream bridge %s: %d\n", priv->bridge->name, ret);
+			return ret;
+		}
+	}
 	return 0;
 }
 
@@ -150,7 +193,7 @@ U_BOOT_DRIVER(imx_sec_dsim) = {
 	.id				= UCLASS_VIDEO_BRIDGE,
 	.of_match			= imx_sec_dsim_ids,
 	.bind				= dm_scan_fdt_dev,
-	.remove 			= imx_sec_dsim_remove,
+	.remove				= imx_sec_dsim_remove,
 	.probe				= imx_sec_dsim_probe,
 	.ops				= &imx_sec_dsim_ops,
 	.priv_auto		= sizeof(struct imx_sec_dsim_priv),

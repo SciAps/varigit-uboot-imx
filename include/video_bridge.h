@@ -8,6 +8,7 @@
 #define __VIDEO_BRIDGE
 
 #include <asm/gpio.h>
+#include <mipi_dsi.h>
 
 /**
  * struct video_bridge_priv - uclass information for video bridges
@@ -73,6 +74,15 @@ struct video_bridge_ops {
 	 * @return number of bytes read, <=0 for error
 	 */
 	int (*read_edid)(struct udevice *dev, u8 *buf, int buf_size);
+
+	/**
+	 * get_dsi_config() - Configure MIPI DSI device parameters
+	 *
+	 * @dev:	Video bridge device
+	 * @device:	MIPI DSI device to configure
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*get_dsi_config)(struct udevice *dev, struct mipi_dsi_device *device);
 };
 
 #define video_bridge_get_ops(dev) \
@@ -128,4 +138,14 @@ int video_bridge_check_timing(struct udevice *dev, struct display_timing *timing
  */
 int video_bridge_read_edid(struct udevice *dev, u8 *buf, int buf_size);
 
+
+
+/**
+ * get_dsi_config() - Configure MIPI DSI device parameters
+ *
+ * @dev:	Video bridge device
+ * @device:		MIPI DSI device to configure
+ * @return 0 if OK, -ve on error
+ */
+int video_bridge_get_dsi_config(struct udevice *dev, struct mipi_dsi_device *device);
 #endif
