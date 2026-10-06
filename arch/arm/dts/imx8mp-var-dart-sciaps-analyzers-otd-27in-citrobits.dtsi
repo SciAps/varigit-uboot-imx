@@ -154,6 +154,7 @@
 };
 
 &lcdif1 {
+	swap-line-pattern = "LP_BGR888";
 	status = "okay";
 };
 

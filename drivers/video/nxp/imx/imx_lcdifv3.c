@@ -39,6 +39,8 @@ struct lcdifv3_priv {
 	u32 thres_low_div;
 	u32 thres_high_mul;
 	u32 thres_high_div;
+
+	u32 line_pattern_swap;
 };
 
 static int lcdifv3_set_pix_fmt(struct lcdifv3_priv *priv, unsigned int format)
@@ -119,13 +121,13 @@ static void lcdifv3_set_bus_fmt(struct lcdifv3_priv *priv)
 	uint32_t disp_para = 0;
 
 	disp_para = readl((ulong)(priv->reg_base + LCDIFV3_DISP_PARA));
-	disp_para &= DISP_PARA_LINE_PATTERN(0xf);
 
-	/* Fixed to 24 bits output */
-	disp_para |= DISP_PARA_LINE_PATTERN(LP_RGB888_OR_YUV444);
+	// Set Line Patttern
+	disp_para &= ~DISP_PARA_LINE_PATTERN(0xf);
+	disp_para |= DISP_PARA_LINE_PATTERN(priv->line_pattern_swap);
 
 	/* config display mode: default is normal mode */
-	disp_para &= DISP_PARA_DISP_MODE(3);
+	disp_para &= ~DISP_PARA_DISP_MODE(3);
 	disp_para |= DISP_PARA_DISP_MODE(0);
 	writel(disp_para, (ulong)(priv->reg_base + LCDIFV3_DISP_PARA));
 }
@@ -348,6 +350,33 @@ static int lcdifv3_video_probe(struct udevice *dev)
 		return ret;
 
 	lcdifv3_of_parse_thres(dev);
+	{
+		const char *data;
+
+		/* Default to 24 LP_RGB888_OR_YUV444 */
+		priv->line_pattern_swap = LP_RGB888_OR_YUV444;
+
+		data = dev_read_string(dev, "swap-line-pattern");
+
+		if (data) {
+			dev_info(dev, "swap-line-pattern: %s\n", data);
+
+			if (!strcmp(data, "LP_RGB888_OR_YUV444"))
+				priv->line_pattern_swap = LP_RGB888_OR_YUV444;
+			else if (!strcmp(data, "LP_RBG888"))
+				priv->line_pattern_swap = LP_RBG888;
+			else if (!strcmp(data, "LP_GBR888"))
+				priv->line_pattern_swap = LP_GBR888;
+			else if (!strcmp(data, "LP_GRB888_OR_UYV444"))
+				priv->line_pattern_swap = LP_GRB888_OR_UYV444;
+			else if (!strcmp(data, "LP_BRG888"))
+				priv->line_pattern_swap = LP_BRG888;
+			else if (!strcmp(data, "LP_BGR888"))
+				priv->line_pattern_swap = LP_BGR888;
+			else
+				dev_warn(dev, "invalid swap-line-pattern: %s\n", data);
+		}
+	}
 
 	if (priv->disp_dev) {
 #if IS_ENABLED(CONFIG_VIDEO_BRIDGE)
