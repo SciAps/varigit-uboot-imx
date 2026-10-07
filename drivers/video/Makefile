@@ -21,7 +21,9 @@ obj-$(CONFIG_PANEL_ORTUS_COM35H3N82ULC) += ortus-com35h3n82ulc.o
 obj-$(CONFIG_PANEL_ORTUS_COM27H2P37ULC_CITROBITS) += ortus-com27h2p37ulc-citrobits.o
 
 obj-$(CONFIG_VIDEO_LOGO) += u_boot_logo.o
-obj-$(CONFIG_VIDEO_LOGO_SCIAPS) += u_boot_logo_sciaps.o
+obj-$(CONFIG_VIDEO_LOGO_SCIAPS) += u_boot_logo_sciaps_240x320.o
+obj-$(CONFIG_VIDEO_LOGO_SCIAPS) += u_boot_logo_sciaps_480x640.o
+obj-$(CONFIG_VIDEO_LOGO_SCIAPS) += u_boot_logo_sciaps_1024x600.o
 
 obj-$(CONFIG_VIDEO_LINK) += video_link.o
 endif

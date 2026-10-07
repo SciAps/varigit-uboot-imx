@@ -405,15 +405,36 @@ int video_sync_copy_all(struct udevice *dev)
 #define SPLASH_START(_name)	__splash_ ## _name ## _begin
 
 #if IS_ENABLED(CONFIG_VIDEO_LOGO_SCIAPS)
-SPLASH_DECL(u_boot_logo_sciaps);
+SPLASH_DECL(u_boot_logo_sciaps_240x320);
+SPLASH_DECL(u_boot_logo_sciaps_480x640);
+SPLASH_DECL(u_boot_logo_sciaps_1024x600);
 #else
 SPLASH_DECL(u_boot_logo);
+#endif
+
+#if IS_ENABLED(CONFIG_VIDEO_LOGO_SCIAPS)
+void *video_get_u_boot_logo_sciaps(struct udevice *dev)
+{
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+
+	if (priv->xsize == 240 && priv->ysize == 320)
+		return SPLASH_START(u_boot_logo_sciaps_240x320);
+
+	if (priv->xsize == 480 && priv->ysize == 640)
+		return SPLASH_START(u_boot_logo_sciaps_480x640);
+
+	if (priv->xsize == 1024 && priv->ysize == 600)
+		return SPLASH_START(u_boot_logo_sciaps_1024x600);
+
+	return SPLASH_START(u_boot_logo_sciaps_240x320);
+}
 #endif
 
 void *video_get_u_boot_logo(void)
 {
 #if IS_ENABLED(CONFIG_VIDEO_LOGO_SCIAPS)
-	return SPLASH_START(u_boot_logo_sciaps);
+	//printf("/n/n/nWE SHOULD NOT BE HERE!!!!!/n/n/n");
+	return SPLASH_START(u_boot_logo_sciaps_240x320);
 #else
 	return SPLASH_START(u_boot_logo);
 #endif
@@ -423,8 +444,9 @@ static int show_splash(struct udevice *dev)
 {
 	u8 *data;
 	int ret;
+
 #if IS_ENABLED(CONFIG_VIDEO_LOGO_SCIAPS)
-	data = SPLASH_START(u_boot_logo_sciaps);
+	data = video_get_u_boot_logo_sciaps(dev);
 	ret = video_bmp_display(dev, map_to_sysmem(data), 0x7fff, 0x7fff, true);
 #else
 	data =  SPLASH_START(u_boot_logo);
