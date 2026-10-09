@@ -26,6 +26,7 @@
 #define BOOT_ENV_SETTINGS \
 	"bootcmd=" \
 		"run cmaargs; " \
+		"run set_wifi_country_code; " \
 		"boota ${fastboot_dev}\0"
 
 #define CFG_EXTRA_ENV_SETTINGS \
@@ -43,7 +44,13 @@
 		"loop.max_part=7 bootconfig " \
 		"androidboot.hardware=nxp " \
 		"androidboot.vendor.sysrq=1 " \
-		"transparent_hugepage=never\0"
+		"transparent_hugepage=never\0" \
+	"set_wifi_country_code=" \
+		"if test -n \"${wifi_country_code}\"; then " \
+			"setenv bootargs \"${bootargs} androidboot.wificountrycode=${wifi_country_code}\"; " \
+		"else " \
+			"setenv bootargs \"${bootargs} androidboot.wificountrycode=US\"; " \
+		"fi\0"
 
 /* Enable mcu firmware flash */
 #ifdef CONFIG_FLASH_MCUFIRMWARE_SUPPORT

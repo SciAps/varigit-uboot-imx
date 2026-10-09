@@ -183,4 +183,12 @@ int fastboot_tx_write_more(const char *buffer);
 int fastboot_tx_write_more_s(const void *buffer, unsigned int buffer_size);
 int fastboot_tx_write(const char *buffer, unsigned int buffer_size);
 
+/*
+ * SciAps temporary Fastboot service authorization.
+ * Does not modify the persistent bootloader lock state.
+ */
+bool sciaps_fastboot_access_is_enabled(void);
+void sciaps_fastboot_access_enable(void);
+void sciaps_fastboot_access_disable(void);
+
 #endif /* _FASTBOOT_H_ */

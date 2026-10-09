@@ -69,6 +69,28 @@ static u32 fastboot_bytes_received;
  */
 static u32 fastboot_bytes_expected;
 
+/*
+ * Temporary SciAps Fastboot service authorization.
+ * This does not modify the persistent Android bootloader lock state.
+ * It is cleared whenever a new USB Fastboot session starts.
+ */
+static bool sciaps_fastboot_access_enabled;
+
+bool sciaps_fastboot_access_is_enabled(void)
+{
+	return sciaps_fastboot_access_enabled;
+}
+
+void sciaps_fastboot_access_enable(void)
+{
+	sciaps_fastboot_access_enabled = true;
+}
+
+void sciaps_fastboot_access_disable(void)
+{
+	sciaps_fastboot_access_enabled = false;
+}
+
 /* Write the bcb with fastboot bootloader commands */
 static void enable_fastboot_command(void)
 {
@@ -514,11 +536,53 @@ static bool erase_uboot_env(void) {
 		return env_erase() ? false : true;
 }
 
+static void set_wifi_country_code(char *cmd, char *response)
+{
+	const char *prefix = "set-wifi-country-code ";
+	const char *country;
+
+	if (strncmp(cmd, prefix, strlen(prefix))) {
+		strcpy(response, "FAILInvalid command");
+		return;
+	}
+
+	country = cmd + strlen(prefix);
+
+	/* ISO 3166-1 alpha-2 country code */
+	if (strlen(country) != 2 ||
+	    country[0] < 'A' || country[0] > 'Z' ||
+	    country[1] < 'A' || country[1] > 'Z') {
+		strcpy(response, "FAILInvalid WiFi country code");
+		return;
+	}
+
+	if (env_set("wifi_country_code", country)) {
+		strcpy(response, "FAILFailed to set WiFi country code");
+		return;
+	}
+
+	if (env_save()) {
+		strcpy(response, "FAILFailed to save environment");
+		return;
+	}
+
+	printf("WiFi country code set to %s\n", country);
+	strcpy(response, "OKAY");
+}
+
 static void flashing(char *cmd, char *response)
 {
 	FbLockState status;
 	FbLockEnableResult result;
-	if (endswith(cmd, "lock_critical")) {
+
+	if (!strncmp(cmd, "set-wifi-country-code ",
+		     strlen("set-wifi-country-code "))) {
+		set_wifi_country_code(cmd, response);
+	} else if (!strcmp(cmd, "sciaps-unlock")) {
+		printf("SciAps Fastboot access enabled for this session\n");
+		sciaps_fastboot_access_enable();
+		strcpy(response, "OKAY");
+	} else if (endswith(cmd, "lock_critical")) {
 		strcpy(response, "OKAY");
 	}
 #ifdef CONFIG_AVB_ATX
@@ -1021,7 +1085,7 @@ static void flash(char *cmd, char *response)
 	int status;
 	status = fastboot_get_lock_stat();
 
-	if (status == FASTBOOT_LOCK) {
+	if (status == FASTBOOT_LOCK && !sciaps_fastboot_access_is_enabled()) {
 		pr_err("device is LOCKed!\n");
 		fastboot_fail("device is locked.", response);
 		return;
@@ -1071,9 +1135,12 @@ static void flash(char *cmd, char *response)
 		   So if the next command is "fastboot reboot bootloader",
 		   it can find the "misc" partition to r/w. */
 		if(gpt_valid) {
+			/*
+			 * Reload the partition table without changing the
+			 * persistent bootloader lock state. Unlocking here
+			 * would also wipe userdata.
+			 */
 			fastboot_load_partitions();
-			/* Unlock device if the gpt is valid */
-			do_fastboot_unlock(true);
 		}
 	}
 
@@ -1091,7 +1158,7 @@ static void erase(char *cmd, char *response)
 #if defined(CONFIG_FASTBOOT_LOCK) && !defined(CONFIG_AVB_ATX)
 	FbLockState status;
 	status = fastboot_get_lock_stat();
-	if (status == FASTBOOT_LOCK) {
+	if (status == FASTBOOT_LOCK && !sciaps_fastboot_access_is_enabled()) {
 		pr_err("device is LOCKed!\n");
 		fastboot_fail("device is locked.", response);
 		return;

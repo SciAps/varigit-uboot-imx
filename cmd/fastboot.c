@@ -71,6 +71,12 @@ static int do_fastboot_usb(int argc, char *const argv[],
 #endif
 	}
 
+	/*
+	 * Start each USB Fastboot session with SciAps service
+	 * authorization disabled.
+	 */
+	sciaps_fastboot_access_disable();
+
 	ret = usb_gadget_initialize(controller_index);
 	if (ret) {
 		pr_err("USB init failed: %d\n", ret);

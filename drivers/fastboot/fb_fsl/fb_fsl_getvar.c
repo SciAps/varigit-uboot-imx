@@ -236,6 +236,19 @@ static int get_single_var(char *cmd, char *response)
 		}
 	} else if (!strcmp_l1("product", cmd)) {
 		strncat(response, CONFIG_TARGET_PRODUCT_NAME, chars_left);
+	} else if (!strcmp_l1("sciaps-unlocked", cmd)) {
+		if (sciaps_fastboot_access_is_enabled())
+			strncat(response, "yes", chars_left);
+		else
+			strncat(response, "no", chars_left);
+	} else if (!strcmp_l1("wifi-country-code", cmd)) {
+		s = env_get("wifi_country_code");
+		if (s)
+			strncat(response, s, chars_left);
+		else {
+			strncat(response, "Value not set", chars_left);
+			return -1;
+		}
 	}
 #ifdef CONFIG_IMX_TRUSTY_OS
         else if(!strcmp_l1("at-attest-uuid", cmd)) {
