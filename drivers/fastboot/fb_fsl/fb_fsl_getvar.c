@@ -249,6 +249,9 @@ static int get_single_var(char *cmd, char *response)
 			strncat(response, "Value not set", chars_left);
 			return -1;
 		}
+	} else if (!strcmp_l1("no_wireless", cmd)) {
+		s = env_get("no_wireless");
+		strncat(response, s ? s : "N/A", chars_left);
 	}
 #ifdef CONFIG_IMX_TRUSTY_OS
         else if(!strcmp_l1("at-attest-uuid", cmd)) {

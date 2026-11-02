@@ -570,12 +570,41 @@ static void set_wifi_country_code(char *cmd, char *response)
 	strcpy(response, "OKAY");
 }
 
+static void set_sciaps_no_wireless(char *cmd, char *response)
+{
+	const char *prefix = "set-sciaps-no-wireless ";
+	const char *value;
+
+	if (strncmp(cmd, prefix, strlen(prefix))) {
+		strcpy(response, "FAILInvalid command");
+		return;
+	}
+
+	value = cmd + strlen(prefix);
+
+	if (strcmp(value, "0") && strcmp(value, "1")) {
+		strcpy(response, "FAILInvalid wireless setting");
+		return;
+	}
+
+	if (env_set("no_wireless", value)) {
+		strcpy(response, "FAILFailed to set wireless setting");
+		return;
+	}
+
+	printf("SciAps no_wireless set to '%s'\n", value);
+	strcpy(response, "OKAY");
+}
+
 static void flashing(char *cmd, char *response)
 {
 	FbLockState status;
 	FbLockEnableResult result;
 
-	if (!strncmp(cmd, "set-wifi-country-code ",
+	if (!strncmp(cmd, "set-sciaps-no-wireless ",
+		     strlen("set-sciaps-no-wireless "))) {
+		set_sciaps_no_wireless(cmd, response);
+	} else if (!strncmp(cmd, "set-wifi-country-code ",
 		     strlen("set-wifi-country-code "))) {
 		set_wifi_country_code(cmd, response);
 	} else if (!strcmp(cmd, "sciaps-unlock")) {
@@ -912,7 +941,7 @@ static void flashing(char *cmd, char *response)
 		}
 	} else if (endswith(cmd, "unlock_critical")) {
 		strcpy(response, "OKAY");
-	} else if (endswith(cmd, "unlock")) {
+	} else if (!strcmp(cmd, "unlock")) {
 		printf("flashing unlock.\n");
 #ifdef CONFIG_AVB_ATX
 		/* We should do nothing here For Android Things which
